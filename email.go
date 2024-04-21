@@ -15,31 +15,32 @@ func main() {
 		subject    string
 		body       string
 		attachment string
+		recipient  string // New flag for recipient email address
 	)
 
-	// Parse command-line flags
 	flag.StringVar(&name, "name", "", "Sender's name")
 	flag.StringVar(&subject, "subject", "", "Email subject")
 	flag.StringVar(&body, "body", "", "Email body")
 	flag.StringVar(&attachment, "attachment", ".", "Attachment file or directory path")
+	flag.StringVar(&recipient, "recipient", "", "Recipient's email address") // Add recipient flag
 	flag.Parse()
 
-	// Validate required flags
-	if name == "" || subject == "" || body == "" {
-		log.Fatal("Missing required flags. Usage: go run main.go -name=<name> -subject=<subject> -body=<body> [-attachment=<attachment>]")
+	// Validate flags
+	if name == "" || subject == "" || body == "" || recipient == "" { // Check if recipient flag is empty
+		log.Fatal("Missing required flags. Usage: go run main.go -name=<name> -subject=<subject> -body=<body> -recipient=<recipient> [-attachment=<attachment>]")
 	}
 
-	// Sender's email information
-	from := "sender@example.com"
-	smtpServer := "smtp.example.com"
+	// Email parameters
+	from := "<sender-email>"
+	to := recipient // Use recipient flag as the 'to' address
+
+	// SMTP server configuration
+	smtpServer := "smtp.gmail.com"
 	smtpPort := "587"
-	smtpUsername := "sender@example.com"
-	smtpPassword := "password"
+	smtpUsername := "<sender>"
+	smtpPassword := "<app_password>"
 
-	// Recipient's email information
-	to := "recipient@example.com"
-
-	// Set up authentication for SMTP server
+	// Set up authentication
 	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpServer)
 
 	// Attachments
@@ -50,7 +51,6 @@ func main() {
 			log.Fatal("Error reading directory:", err)
 		}
 
-		// Collect file paths for attachments
 		for _, file := range files {
 			if file.IsDir() {
 				continue // Skip directories
@@ -70,7 +70,6 @@ func main() {
 
 // SendEmail sends an email with attachments
 func SendEmail(from, to, smtpServer string, auth smtp.Auth, name, subject, body string, attachments []string) error {
-	// Compose the email message
 	message := []byte(
 		"From: " + name + " <" + from + ">\r\n" +
 			"To: " + to + "\r\n" +
@@ -82,7 +81,6 @@ func SendEmail(from, to, smtpServer string, auth smtp.Auth, name, subject, body 
 			body + "\r\n\r\n",
 	)
 
-	// Attach files
 	for _, file := range attachments {
 		content, err := os.ReadFile(file)
 		if err != nil {
@@ -100,6 +98,5 @@ func SendEmail(from, to, smtpServer string, auth smtp.Auth, name, subject, body 
 		)
 	}
 
-	// Send the email using SMTP
 	return smtp.SendMail(smtpServer, auth, from, []string{to}, message)
 }

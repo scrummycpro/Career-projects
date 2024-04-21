@@ -38,7 +38,9 @@ Before running this program, ensure you have the following:
 You can run the program with the following command:
 
 ```bash
-go run email.go -name="Sender Name" -subject="Email Subject" -body="Email Body" -attachment="./path/to/attachments"
+go run main.go -name="Sender Name" -subject="Email Subject" -body="Email Body" -recipient="recipient@example.com" -attachment="./"
+
+
 ```
 
 Replace the placeholders with the appropriate values:
